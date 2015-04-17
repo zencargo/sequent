@@ -3,11 +3,11 @@ require 'spec_helper'
 describe Sequent::Core::EventStore do
   context ".configure" do
 
-    it "can be configured using a ActiveRecord class" do
+    it "can be configured with an event store adapter" do
       Sequent.configure do |config|
-        config.record_class = :foo
+        config.event_store_adapter = :foo
       end
-      expect(Sequent.configuration.record_class).to eq :foo
+      expect(Sequent.configuration.event_store_adapter).to eq :foo
     end
 
     it "can be configured with event_handlers" do

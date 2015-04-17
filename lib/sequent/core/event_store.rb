@@ -24,7 +24,7 @@ module Sequent
       #
       def load_events(aggregate_id)
         event_types = {}
-        record_class.connection.select_all("select event_type, event_json from #{record_class.table_name} where aggregate_id = '#{aggregate_id}' order by sequence_number asc").map! do |event_hash|
+        event_store_adapter.load(aggregate_id).map! do |event_hash|
           event_type = event_hash["event_type"]
           event_json = Sequent::Core::Oj.strict_load(event_hash["event_json"])
           unless event_types.has_key?(event_type)
@@ -56,10 +56,6 @@ module Sequent
 
       protected
 
-      def record_class
-        configuration.record_class
-      end
-
       def event_handlers
         configuration.event_handlers
       end
@@ -80,9 +76,13 @@ module Sequent
 
       def store_events(command, events = [])
         command_record = Sequent::Core::CommandRecord.create!(:command => command)
-        events.each do |event|
-          record_class.create!(:command_record => command_record, :event => event)
-        end
+        event_store_adapter.store(events)
+      end
+
+      private
+
+      def event_store_adapter
+        configuration.event_store_adapter
       end
     end
   end
