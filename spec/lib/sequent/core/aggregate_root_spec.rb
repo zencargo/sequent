@@ -2,28 +2,28 @@ require 'spec_helper'
 
 describe Sequent::Core::AggregateRoot do
 
-  class TestEvent < Sequent::Core::TenantEvent
+  class AggregateRootTestEvent < Sequent::Core::Event
     attrs field: String
   end
 
-  class TestAggregateRoot < Sequent::Core::TenantAggregateRoot
+  class TestAggregateRoot < Sequent::Core::AggregateRoot
     attr_accessor :test_event_count
 
     def initialize(params)
-      super(params[:aggregate_id], params[:organization_id])
+      super(params[:aggregate_id])
     end
 
     def generate_event
-      apply TestEvent, field: "value"
+      apply AggregateRootTestEvent, field: "value"
     end
 
     private
-    on TestEvent do |_|
+    on AggregateRootTestEvent do |_|
 
     end
   end
 
-  let(:subject) { TestAggregateRoot.new(aggregate_id: "identifier", organization_id: "foo") }
+  let(:subject) { TestAggregateRoot.new(aggregate_id: "identifier") }
 
   it "has an aggregate id" do
     expect(subject.id).to eq "identifier"
@@ -47,7 +47,7 @@ describe Sequent::Core::AggregateRoot do
   end
 
   it "starts sequence numberings based on history" do
-    subject = TestAggregateRoot.load_from_history [TestEvent.new(aggregate_id: "historical_id", sequence_number: 1, organization_id: "foo", field: "value")]
+    subject = TestAggregateRoot.load_from_history [AggregateRootTestEvent.new(aggregate_id: "historical_id", sequence_number: 1, field: "value")]
     subject.generate_event
     expect(subject.uncommitted_events[0].sequence_number).to eq 2
   end

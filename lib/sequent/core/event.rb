@@ -11,8 +11,10 @@ module Sequent
               Sequent::Core::Helpers::EqualSupport,
               Sequent::Core::Helpers::AttributeSupport,
               Sequent::Core::Helpers::Copyable
-      attrs aggregate_id: String, sequence_number: Integer, created_at: DateTime
-      attrs event_type: String
+      attrs aggregate_id: String,
+        sequence_number: Integer,
+        created_at: DateTime,
+        event_type: String
 
       def initialize(args = {})
         update_all_attributes args
@@ -24,7 +26,7 @@ module Sequent
       def payload
         result = {}
         instance_variables
-          .reject { |k| payload_variables.include?(k) }
+          .reject { |k| not_payload_variables.include?(k) }
           .select { |k| self.class.types.keys.include?(to_attribute_name(k))}
           .each do |k|
           result[k.to_s[1 .. -1].to_sym] = instance_variable_get(k)
@@ -34,8 +36,8 @@ module Sequent
 
       protected
 
-      def payload_variables
-        %i{@aggregate_id @sequence_number @created_at}
+      def not_payload_variables
+        %i{@aggregate_id @sequence_number @created_at @event_type}
       end
 
       private
@@ -44,27 +46,6 @@ module Sequent
         instance_variable_name[1 .. -1].to_sym
       end
     end
-
-    class TenantEvent < Event
-
-      attrs organization_id: String
-
-      def initialize(args = {})
-        super
-        raise "Missing organization_id" unless @organization_id
-      end
-
-      protected
-      def payload_variables
-        super << :"@organization_id"
-      end
-
-    end
-
-    class CreateEvent < TenantEvent
-
-    end
-
   end
 end
 

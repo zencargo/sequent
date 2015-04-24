@@ -59,29 +59,5 @@ module Sequent
         @sequence_number += 1
       end
     end
-
-    # You can use this class when running in a multi tenant environment
-    # It basically makes sure that the +organization_id+ (the tenant_id for historic reasons)
-    # is available for the subclasses
-    class TenantAggregateRoot < AggregateRoot
-      attr_reader :organization_id
-
-      def initialize(id, organization_id)
-        super(id)
-        @organization_id = organization_id
-      end
-
-      def load_from_history(events)
-        raise "Empty history" if events.empty?
-        @organization_id = events.first.organization_id
-        super(events)
-      end
-
-      protected
-
-      def build_event(event, params = {})
-        super(event, {organization_id: @organization_id}.merge(params))
-      end
-    end
   end
 end
