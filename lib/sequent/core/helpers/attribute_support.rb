@@ -54,26 +54,28 @@ module Sequent
                 associations << attribute
               end
             end
+
             if included_modules.include?(ActiveModel::Validations) && associations.present?
               validates_with Sequent::Core::Helpers::AssociationValidator, associations: associations
             end
+
             # Generate method that sets all defined attributes based on the attrs hash.
             class_eval <<EOS
               def update_all_attributes(attrs)
                 super if defined?(super)
                 #{@types.map { |attribute, _|
-              "@#{attribute} = attrs[:#{attribute}]"
-            }.join("\n            ")}
+                  "@#{attribute} = attrs[:#{attribute}]"
+                }.join("\n")}
                 self
               end
 EOS
 
             class_eval <<EOS
-               def update_all_attributes_from_json(attrs)
+               def update_all_attributes_from_hash(attrs)
                  super if defined?(super)
                  #{@types.map { |attribute, type|
-              "@#{attribute} = #{type}.deserialize_from_json(attrs['#{attribute}'])"
-            }.join("\n           ")}
+                   "@#{attribute} = #{type}.deserialize_from_hash(attrs['#{attribute}'])"
+                 }.join("\n")}
                end
 EOS
           end
@@ -88,26 +90,23 @@ EOS
             ArrayWithType.new(type)
           end
 
-          def deserialize_from_json(args)
+          def deserialize_from_hash(args)
             unless args.nil?
               obj = allocate()
-              obj.update_all_attributes_from_json(args)
+              obj.update_all_attributes_from_hash(args)
               obj
             end
           end
 
-
           def numeric?(object)
             true if Float(object) rescue false
           end
-
         end
 
         # extend host class with class methods when we're included
         def self.included(host_class)
           host_class.extend(ClassMethods)
         end
-
 
         def attributes
           hash = HashWithIndifferentAccess.new

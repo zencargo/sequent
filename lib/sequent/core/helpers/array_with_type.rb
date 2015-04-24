@@ -9,8 +9,8 @@ module Sequent
           @item_type = item_type
         end
 
-        def deserialize_from_json(value)
-          value.nil? ? nil : value.map { |item| item_type.deserialize_from_json(item) }
+        def deserialize_from_hash(value)
+          value.nil? ? nil : value.map { |item| item_type.deserialize_from_hash(item) }
         end
 
         def to_s

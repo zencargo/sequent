@@ -6,7 +6,7 @@ module Sequent
     module Helpers
       class StringToValueParsers
         PARSERS = {
-          ::Symbol => ->(value) { Symbol.deserialize_from_json(value) },
+          ::Symbol => ->(value) { Symbol.deserialize_from_hash(value) },
           ::String => ->(value) { value },
           ::Integer => ->(value) { parse_to_integer(value) },
           ::Boolean => ->(value) { parse_to_bool(value) },
@@ -33,7 +33,7 @@ module Sequent
         end
 
         def self.parse_to_date_time(value)
-          value.is_a?(DateTime) ? value : DateTime.deserialize_from_json(value)
+          value.is_a?(DateTime) ? value : DateTime.deserialize_from_hash(value)
         end
 
         def self.parse_array(values, type_in_array)

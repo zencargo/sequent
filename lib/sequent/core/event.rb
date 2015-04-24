@@ -12,12 +12,13 @@ module Sequent
               Sequent::Core::Helpers::AttributeSupport,
               Sequent::Core::Helpers::Copyable
       attrs aggregate_id: String, sequence_number: Integer, created_at: DateTime
+      attrs event_type: String
 
       def initialize(args = {})
         update_all_attributes args
         raise "Missing aggregate_id" unless @aggregate_id
-        raise "Missing sequence_number" unless @sequence_number
         @created_at ||= DateTime.now
+        self.event_type = self.class.name
       end
 
       def payload
@@ -30,16 +31,18 @@ module Sequent
         end
         result
       end
+
       protected
+
       def payload_variables
         %i{@aggregate_id @sequence_number @created_at}
       end
 
       private
+
       def to_attribute_name(instance_variable_name)
         instance_variable_name[1 .. -1].to_sym
       end
-
     end
 
     class TenantEvent < Event

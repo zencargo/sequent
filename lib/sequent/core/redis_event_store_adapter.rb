@@ -1,20 +1,20 @@
 module Sequent
   module Core
-    class PostgresEventStoreAdapter
+    class RedisEventStoreAdapter
       attr_accessor :configuration
 
       def initialize(configuration)
         self.configuration = configuration
       end
 
-      def store(events, command:)
+      def store(aggregate_id, events)
         events.each do |(event, event_json)|
-          connection.create!(event: event, event_json: event_json)
+          connection.rpush(aggregate_id, event_json)
         end
       end
 
       def load(aggregate_id)
-        connection.connection.select_all("select event_type, event_json from #{connection.table_name} where aggregate_id = '#{aggregate_id}' order by sequence_number asc")
+        connection.lrange(aggregate_id, 0, -1)
       end
 
       private
