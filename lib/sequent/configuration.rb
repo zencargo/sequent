@@ -26,6 +26,10 @@ module Sequent
     end
 
     def initialize
+      self.command_handlers = []
+      self.command_filters = []
+      self.event_handlers = []
+
       self.event_store = Sequent::Core::EventStore.new(self)
       self.event_store_adapter = Sequent::Core::PostgresEventStoreAdapter.new(self)
       self.event_store_connection = Sequent::Core::PostgresEventRecord
@@ -35,6 +39,7 @@ module Sequent
       self.command_store_connection = Sequent::Core::PostgresCommandRecord
 
       self.transaction_provider = Sequent::Core::Transactions::NoTransactions.new
+
       self.serializer = Sequent::Core::OjSerializer.new
 
       self.command_handlers = []
@@ -45,7 +50,8 @@ module Sequent
 
     def event_store=(event_store)
       @event_store = event_store
-      self.aggregate_repository = Sequent::Core::AggregateRepository.new(event_store)
+      @aggregate_repository = Sequent::Core::AggregateRepository.new(event_store)
+      self.command_handlers.each { |c| c.repository = @aggregate_repository }
     end
   end
 end
