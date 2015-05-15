@@ -7,7 +7,7 @@ module Sequent
         self.configuration = configuration
       end
 
-      def store(events, command:)
+      def store(aggregate_id, events)
         events.each do |(event, event_json)|
           connection.create!(event: event, event_json: event_json)
         end
