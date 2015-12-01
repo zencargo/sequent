@@ -6,7 +6,6 @@ module Sequent
       module UuidHelper
 
         def new_uuid
-          warn "DEPRECATION WARNING: Sequent::Core::Helpers::UuidHelper.new_uuid is deprecated. Use Sequent.new_uuid instead"
           Sequent.new_uuid
         end
 
