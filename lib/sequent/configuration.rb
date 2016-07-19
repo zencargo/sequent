@@ -24,15 +24,15 @@ module Sequent
     attr_accessor :disable_event_handlers
 
     def self.instance
-      @instance ||= new
+      Thread.current[:sequent_configuration] ||= new
     end
 
     def self.reset
-      @instance = new
+      Thread.current[:sequent_configuration] = new
     end
 
     def self.restore(configuration)
-      @instance = configuration
+      Thread.current[:sequent_configuration] = configuration
     end
 
     def initialize
